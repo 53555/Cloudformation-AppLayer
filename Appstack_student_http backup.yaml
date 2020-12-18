@@ -6,11 +6,6 @@ Parameters:
     Type: AWS::EC2::Image::Id
     Default: "ami-09558250a3419e7d0"
     ConstraintDescription: "must be a valid AMI"
-  kAmi:
-    Description: "Student App AMI Details"
-    Type: AWS::EC2::Image::Id
-    Default: "ami-048e162d2fb8345c2"
-    ConstraintDescription: "must be a valid AMI"
   KeyPair:
     Description: "Student App Key Details"
     Type: AWS::EC2::KeyPair::KeyName
@@ -131,26 +126,6 @@ Resources:
         mount /dev/xvdb /opt
         cp /etc/fstab /etc/fstab.bak
         echo "/dev/xvdb    /opt   xfs    defaults,noatime  1   1" >> /etc/fstab
-
-  KeycloakLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
-      LaunchConfigurationName: "keycloakLCV1"
-      AssociatePublicIpAddress: true
-      IamInstanceProfile: !Ref IAMAppstackInstanceProfile
-      ImageId: 
-        Ref: kAmi
-      InstanceType: "t2.micro"
-      InstanceMonitoring: false
-      KeyName: 
-        Ref: KeyPair 
-      SecurityGroups:
-        - !GetAtt AppStackSSHSG.GroupId
-        - !GetAtt AppStackSG.GroupId
-      UserData: !Base64 |
-        #!/bin/bash -x
-        sudo -i
-        nohup /opt/keycloak/bin/launch.sh standalone.xml 0.0.0.0 &
            
 
   AppASG: 
@@ -168,23 +143,6 @@ Resources:
       Tags: 
         - Key: Name
           Value: Appstack-Tomcat
-          PropagateAtLaunch: 'true'
-
-    KeycloakASG: 
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      AutoScalingGroupName: KeycloakASG
-      VPCZoneIdentifier: !Ref AppSubnet
-      LaunchConfigurationName: !Ref KeycloakLaunchConfiguration
-      MaxSize: 1
-      MinSize: 1
-      #DesiredCapacity: !Ref AppASGSize
-      HealthCheckGracePeriod: 300
-      TargetGroupARNs: 
-        - Ref: KeycloakTG
-      Tags: 
-        - Key: Name
-          Value: Keycloak-Server
           PropagateAtLaunch: 'true'
 
   AppAlb:
@@ -210,20 +168,6 @@ Resources:
       Port: 80
       Protocol: HTTP
 
-  KeycloakListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      ListenerArn: !Ref AppAlbListener
-      Priority: 100
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - "/auth/"
-            - "/auth/*"
-      Actions:
-        - TargetGroupArn: !Ref KeycloakTG
-          Type: forward
-
   AppTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     DependsOn: AppAlb
@@ -237,26 +181,6 @@ Resources:
       Port: 8080
       Protocol: HTTP
       Name: AppTG
-      TargetGroupAttributes:
-      - Key: stickiness.enabled
-        Value: true
-      UnhealthyThresholdCount: 10
-      VpcId:
-        Ref: Vpc
-
-    KeycloakTG:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    DependsOn: AppAlb
-    Properties:
-      HealthCheckPath: "/auth/"
-      HealthCheckProtocol: HTTP
-      Matcher:
-        HttpCode: '200,302,301,303,307'
-      HealthCheckIntervalSeconds: 120
-      HealthyThresholdCount: 3
-      Port: 8080
-      Protocol: HTTP
-      Name: KeycloakTG
       TargetGroupAttributes:
       - Key: stickiness.enabled
         Value: true
