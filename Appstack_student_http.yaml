@@ -106,7 +106,7 @@ Resources:
   AppLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      LaunchConfigurationName: "StudentAppLCV3"
+      LaunchConfigurationName: "StudentAppLCV4"
       AssociatePublicIpAddress: true
       IamInstanceProfile: !Ref IAMAppstackInstanceProfile
       ImageId: 
@@ -170,7 +170,7 @@ Resources:
           Value: Appstack-Tomcat
           PropagateAtLaunch: 'true'
 
-    KeycloakASG: 
+  KeycloakASG: 
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       AutoScalingGroupName: KeycloakASG
@@ -244,7 +244,7 @@ Resources:
       VpcId:
         Ref: Vpc
 
-    KeycloakTG:
+  KeycloakTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     DependsOn: AppAlb
     Properties:
