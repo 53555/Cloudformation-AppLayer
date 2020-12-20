@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Network Stack for Student Application
+
+Resources:
+  NetworkStackVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: NetworkStackVPC
+
+  NetworkStackPriSub01:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      VpcId: !Ref NetworkStackVPC
+      CidrBlock: !Ref PriSub01
+      Tags:
+        - Key: Name
+          Value: NetworkStackPriSub01
+  NetworkStackPriSub02:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      VpcId: !Ref NetworkStackVPC
+      CidrBlock: !Ref PriSub02
+      Tags:
+        - Key: Name
+          Value: NetworkStackPriSub02
+  NetworkStackPriSub03:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 2
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      VpcId: !Ref NetworkStackVPC
+      CidrBlock: !Ref PriSub03
+      Tags:
+        - Key: Name
+          Value: NetworkStackPriSub03  
+
+  NetworkStackPubSub01:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      VpcId: !Ref NetworkStackVPC
+      CidrBlock: !Ref PubSub01
+      Tags:
+        - Key: Name
+          Value: NetworkStackPubSub01
+  NetworkStackPubSub02:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      VpcId: !Ref NetworkStackVPC
+      CidrBlock: !Ref PubSub02
+      Tags:
+        - Key: Name
+          Value: NetworkStackPubSub02
+  NetworkStackPubSub03:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 2
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      VpcId: !Ref NetworkStackVPC
+      CidrBlock: !Ref PubSub03
+      Tags:
+        - Key: Name
+          Value: NetworkStackPubSub03
+
+  NetworkStackPriRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NetworkStackVPC 
+      Tags:
+        - Key: Name
+          Value: NetworkStackPriRT
+  NetworkStackPubRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NetworkStackVPC 
+      Tags:
+        - Key: Name
+          Value: NetworkStackPubRT
+
+  NetworkStackPriRTA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NetworkStackPriSub01
+      RouteTableId: !Ref NetworkStackPriRT
+  NetworkStackPriRTA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NetworkStackPriSub02
+      RouteTableId: !Ref NetworkStackPriRT
+  NetworkStackPriRTA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NetworkStackPriSub03
+      RouteTableId: !Ref NetworkStackPriRT
+  
+  NetworkStackPubRTA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NetworkStackPubSub01
+      RouteTableId: !Ref NetworkStackPubRT
+  NetworkStackPubRTA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NetworkStackPubSub02
+      RouteTableId: !Ref NetworkStackPubRT
+  NetworkStackPubRTA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NetworkStackPubSub03
+      RouteTableId: !Ref NetworkStackPubRT
