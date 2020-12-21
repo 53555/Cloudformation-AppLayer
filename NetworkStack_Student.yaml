@@ -185,4 +185,28 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NetworkStackNATGW
 
+
+Outputs:
+  VPCID:
+    Description: VPC ID
+    Value: !Ref NetworkStackVPC
+  PriSub1ID:
+    Description: Private Subnet ID 1
+    Value: !Ref NetworkStackPriSub01
+  PriSub2ID:
+    Description: Private Subnet ID 2
+    Value: !Ref NetworkStackPriSub02
+  PriSub3ID:
+    Description: Private Subnet ID 3
+    Value: !Ref NetworkStackPriSub03
+  PubSub1ID:
+    Description: Public Subnet ID 1
+    Value: !Ref NetworkStackPubSub01
+  PubSub2ID:
+    Description: Public Subnet ID 2
+    Value: !Ref NetworkStackPubSub02
+  PubSub3ID:
+    Description: Public Subnet ID 3
+    Value: !Ref NetworkStackPubSub03
+
   
