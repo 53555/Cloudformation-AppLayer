@@ -1,6 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Network Stack for Student Application
 
+Parameters:
+  VpcCidr:
+    Description: VPC Cidr
+    Type: String
+    Default: 10.0.0.0/16
+  PrivateSubetCider:
+    Description: Private Subnet Cidr list
+    Type: CommaDelimitedList
+    Default: 10.0.0.0/24, 10.0.1.0/24, 10.0.2.0/24
+  PublicSubetCider: 
+    Description: Public Subnet Cidr list
+    Type: CommaDelimitedList
+    Default: 10.0.3.0/24, 10.0.4.0/24, 10.0.5.0/24
+
 Resources:
   NetworkStackVPC:
     Type: AWS::EC2::VPC
@@ -19,7 +33,7 @@ Resources:
         - 0
         - Fn::GetAZs: !Ref 'AWS::Region'
       VpcId: !Ref NetworkStackVPC
-      CidrBlock: !Ref PriSub01
+      CidrBlock: !Select [ 0, !Ref PrivateSubetCider ]
       Tags:
         - Key: Name
           Value: NetworkStackPriSub01
@@ -30,7 +44,7 @@ Resources:
         - 1
         - Fn::GetAZs: !Ref 'AWS::Region'
       VpcId: !Ref NetworkStackVPC
-      CidrBlock: !Ref PriSub02
+      CidrBlock: !Select [ 1, !Ref PrivateSubetCider ]
       Tags:
         - Key: Name
           Value: NetworkStackPriSub02
@@ -41,7 +55,7 @@ Resources:
         - 2
         - Fn::GetAZs: !Ref 'AWS::Region'
       VpcId: !Ref NetworkStackVPC
-      CidrBlock: !Ref PriSub03
+      CidrBlock: !Select [ 2, !Ref PrivateSubetCider ]
       Tags:
         - Key: Name
           Value: NetworkStackPriSub03  
@@ -53,7 +67,7 @@ Resources:
         - 0
         - Fn::GetAZs: !Ref 'AWS::Region'
       VpcId: !Ref NetworkStackVPC
-      CidrBlock: !Ref PubSub01
+      CidrBlock: !Select [ 0, !Ref PublicSubetCider ]
       Tags:
         - Key: Name
           Value: NetworkStackPubSub01
@@ -64,7 +78,7 @@ Resources:
         - 1
         - Fn::GetAZs: !Ref 'AWS::Region'
       VpcId: !Ref NetworkStackVPC
-      CidrBlock: !Ref PubSub02
+      CidrBlock: !Select [ 1, !Ref PublicSubetCider ]
       Tags:
         - Key: Name
           Value: NetworkStackPubSub02
@@ -75,7 +89,7 @@ Resources:
         - 2
         - Fn::GetAZs: !Ref 'AWS::Region'
       VpcId: !Ref NetworkStackVPC
-      CidrBlock: !Ref PubSub03
+      CidrBlock: !Select [ 2, !Ref PublicSubetCider ]
       Tags:
         - Key: Name
           Value: NetworkStackPubSub03
@@ -95,33 +109,39 @@ Resources:
         - Key: Name
           Value: NetworkStackPubRT
 
-  NetworkStackPriRTA:
+  NetworkStackPriRTA1:
+    DependsOn: NetworkStackPriRT
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref NetworkStackPriSub01
       RouteTableId: !Ref NetworkStackPriRT
-  NetworkStackPriRTA:
+  NetworkStackPriRTA2:
+    DependsOn: NetworkStackPriRT
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref NetworkStackPriSub02
       RouteTableId: !Ref NetworkStackPriRT
-  NetworkStackPriRTA:
+  NetworkStackPriRTA3:
+    DependsOn: NetworkStackPriRT
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref NetworkStackPriSub03
       RouteTableId: !Ref NetworkStackPriRT
   
-  NetworkStackPubRTA:
+  NetworkStackPubRTA1:
+    DependsOn: NetworkStackPubRT
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref NetworkStackPubSub01
       RouteTableId: !Ref NetworkStackPubRT
-  NetworkStackPubRTA:
+  NetworkStackPubRTA2:
+    DependsOn: NetworkStackPubRT
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref NetworkStackPubSub02
       RouteTableId: !Ref NetworkStackPubRT
-  NetworkStackPubRTA:
+  NetworkStackPubRTA3:
+    DependsOn: NetworkStackPubRT
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref NetworkStackPubSub03
@@ -149,13 +169,16 @@ Resources:
   NetworkStackEIP:
     Type: AWS::EC2::EIP
     Properties:
-    Domain: vpc
+      Domain: vpc
   NetworkStackNATGW:
     Type: 'AWS::EC2::NatGateway'
     Properties:
       AllocationId: !GetAtt 'NetworkStackEIP.AllocationId'
       SubnetId: !Ref NetworkStackPubSub01
-  NetworkStackRoutePubRTIGW:
+      Tags:
+        - Key: Name
+          Value: NetworkStackNATGW
+  NetworkStackRoutePriRTNGW:
     Type: AWS::EC2::Route
     Properties:
       RouteTableId: !Ref NetworkStackPriRT
