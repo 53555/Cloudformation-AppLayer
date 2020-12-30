@@ -9,3 +9,5 @@ VPC ID, SubnetIDs, AMI and etc... needs to be updated accordingly
 NetworkStack to create VPC and corresponding compenents.
 
 To have complete setup of Network and App Layer these template can be used.
+
+testing..
